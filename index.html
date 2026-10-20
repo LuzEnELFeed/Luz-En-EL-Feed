@@ -208,13 +208,18 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
     document.body.appendChild(host);
     const style = document.createElement('style');
     style.textContent = `
-      .pdf-export{width:760px!important;max-width:none!important;min-width:760px!important;margin:0!important;box-shadow:none!important;overflow:visible!important;padding:44px 48px 34px!important;height:auto!important;min-height:950px!important}
-      .pdf-export.cover{min-height:1050px!important;height:1050px!important;padding:62px 48px 42px!important}
+      .pdf-export{width:760px!important;max-width:none!important;min-width:760px!important;margin:0!important;box-shadow:none!important;overflow:visible!important;padding:28px 38px 36px!important;height:auto!important;min-height:0!important}
+      .pdf-export.cover{display:none!important}
       .pdf-export .footer{display:none!important}
       .pdf-export .field input[type=text],.pdf-export .field input[type=number],.pdf-export .field input[type=date],.pdf-export .line-input{display:block!important;width:100%!important;min-height:34px!important;padding:8px 2px!important;border:0!important;border-bottom:1px solid #cfd5df!important;border-radius:0!important;background:transparent!important;color:#26334a!important;font:inherit!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important}
       .pdf-export .name-line .print-answer-input{flex:1!important;min-width:0!important}
-      .pdf-export .notes textarea{min-height:145px!important}
-      .pdf-export .softbox,.pdf-export .notes,.pdf-export .callout,.pdf-export .verse,.pdf-export .account-row,.pdf-export .challenge-body,.pdf-export .objective,.pdf-export .section-head,.pdf-export .two-col,.pdf-export .excuse-table{break-inside:avoid!important;page-break-inside:avoid!important}
+      .pdf-export .notes{margin-top:14px!important;padding:13px!important;break-inside:avoid!important;page-break-inside:avoid!important}
+      .pdf-export .notes textarea{min-height:70px!important;height:auto!important;background:transparent!important;line-height:1.65!important;overflow:visible!important}
+      .pdf-export .softbox,.pdf-export .notes,.pdf-export .account-row,.pdf-export .challenge-body,.pdf-export .section-head{break-inside:avoid!important;page-break-inside:avoid!important}
+      .pdf-export .field{margin:10px 0!important}
+      .pdf-export .softbox{margin:12px 0!important;padding:13px!important}
+      .pdf-export .section-head{margin-bottom:14px!important}
+      .pdf-export .pdf-empty{display:none!important}
       .pdf-export .print-choice{display:inline-block;width:13px;height:13px;box-sizing:border-box;border:1.5px solid #26334a;border-radius:50%;margin-right:5px;vertical-align:-2px;position:relative}
       .pdf-export .print-choice.checked:after{content:'';position:absolute;width:6px;height:6px;background:#26334a;border-radius:50%;left:2px;top:2px}
       .pdf-export .print-check{display:inline-block;width:13px;height:13px;border:1.5px solid #26334a;border-radius:2px;margin-right:5px;vertical-align:-2px;position:relative}
@@ -223,9 +228,9 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
     `;
     host.appendChild(style);
     function replaceControls(original, clone) {
-      const a=[...original.querySelectorAll('input,textarea,select')], b=[...clone.querySelectorAll('input,textarea,select')];
-      b.forEach((el,i)=>{
-        const src=a[i]; if(!src)return;
+      const b=[...clone.querySelectorAll('input,textarea,select')];
+      b.forEach(el=>{
+        const src=el;
         if(el.type==='radio'||el.type==='checkbox'){
           const mark=document.createElement('span');
           mark.className=(el.type==='radio'?'print-choice':'print-check')+(src.checked?' checked':'');
@@ -245,6 +250,104 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
         el.replaceWith(out);
       });
     }
+    function cleanCloneForAnswers(clone, pageIndex) {
+      // El PDF conserva el diseño de los apartados interactivos, no las explicaciones del cuaderno.
+      const remove = el => { if (el && el.parentNode) el.parentNode.removeChild(el); };
+      const hasValue = el => {
+        if (!el) return false;
+        if (el.type === 'checkbox') return el.checked;
+        if (el.type === 'radio') return el.checked;
+        return String(el.value || '').trim().length > 0;
+      };
+
+      // La portada y los textos explicativos no forman parte de la hoja de respuestas.
+      if (clone.classList.contains('cover')) return false;
+      clone.querySelectorAll('.objective,.callout,.verse,.two-col,.excuse-table,.pill-list,.lead').forEach(remove);
+
+      // Segunda hoja de portada: conservar solo el campo Nombre, quitar el objetivo informativo.
+      if (clone.dataset.page === '1') {
+        clone.querySelectorAll('.objective').forEach(remove);
+      }
+
+      // Quitar títulos y párrafos que solo introducen información, sin borrar los encabezados de sección.
+      if (clone.dataset.page === '3') {
+        clone.querySelectorAll(':scope > h3').forEach(remove);
+      }
+      if (clone.dataset.page === '4') {
+        clone.querySelectorAll(':scope > h3, :scope > .grid2').forEach(remove);
+      }
+      if (clone.dataset.page === '5') {
+        clone.querySelectorAll(':scope > h3, :scope > p').forEach(remove);
+      }
+      if (clone.dataset.page === '6') {
+        clone.querySelectorAll(':scope > h3, :scope > p').forEach(remove);
+        // En cada reto, mantener título, casilla marcada y notas; quitar el texto de instrucciones.
+        clone.querySelectorAll('.challenge-body').forEach(body => {
+          const title = body.querySelector('b');
+          const label = body.querySelector('label');
+          const textarea = body.querySelector('textarea');
+          [...body.childNodes].forEach(node => {
+            if (node === title || node === label || node === textarea) return;
+            remove(node);
+          });
+          if (label) {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            const note = textarea && textarea.value.trim();
+            if (!(checkbox && checkbox.checked) && !note) {
+              const challenge = body.closest('.challenge');
+              if (challenge) remove(challenge);
+            }
+          }
+        });
+      }
+
+      // Convertir campos sin respuesta en espacios que no se imprimen.
+      clone.querySelectorAll('.field').forEach(field => {
+        const controls = [...field.querySelectorAll('input,textarea,select')];
+        if (!controls.length) return;
+        const answered = controls.some(hasValue);
+        if (!answered) remove(field);
+      });
+
+      // En las notas, ocultar el cuadro si no hay texto; si lo hay, ajustar su altura al contenido.
+      clone.querySelectorAll('.notes').forEach(notes => {
+        const textarea = notes.querySelector('textarea');
+        if (!textarea || !textarea.value.trim()) { remove(notes); return; }
+        const lines = textarea.value.split('\n').length;
+        textarea.style.minHeight = Math.max(52, Math.min(160, lines * 22 + 22)) + 'px';
+      });
+
+      // En la tabla de cuentas, solo conservar las filas que tengan nombre o una opción seleccionada.
+      clone.querySelectorAll('.account-row').forEach(row => {
+        const text = row.querySelector('input[type="text"]');
+        const radios = [...row.querySelectorAll('input[type="radio"]')];
+        if (!(text && text.value.trim()) && !radios.some(r => r.checked)) remove(row);
+      });
+
+      // Si una caja interactiva quedó vacía después del filtrado, quitarla para no dejar páginas vacías.
+      clone.querySelectorAll('.softbox').forEach(box => {
+        const hasText = [...box.querySelectorAll('input,textarea')].some(hasValue);
+        if (!hasText) remove(box);
+      });
+
+      // Ocultar cualquier control vacío que no haya quedado dentro de un campo estándar.
+      clone.querySelectorAll('input[type="text"],input[type="date"],input[type="number"],textarea').forEach(el => {
+        if (!hasValue(el) && !el.closest('.account-row')) {
+          const field = el.closest('.field');
+          if (field) remove(field);
+        }
+      });
+
+      // No exportar secciones que no tengan respuestas.
+      const hasAnswer = [...clone.querySelectorAll('input,textarea,select')]
+        .some(el => hasValue(el));
+      const hasFilledAccount = [...clone.querySelectorAll('.account-row input[type="text"]')].some(el => el.value.trim());
+      const hasVisibleAnswer = hasAnswer || hasFilledAccount;
+      const hasName = [...clone.querySelectorAll('.name-line input')].some(el => el.value.trim());
+      const hasSection = !!clone.querySelector('.section-head');
+      return hasVisibleAnswer || hasName || (hasSection && clone.dataset.page === '2');
+    }
+
     function footer(n){
       doc.setDrawColor(220,225,232);doc.setLineWidth(.25);doc.line(marginX,footerY-5,210-marginX,footerY-5);
       doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(135,143,156);
@@ -254,19 +357,32 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
     try {
       let pdfPage=0;
       for(const original of pages){
-        const clone=original.cloneNode(true);clone.classList.add('pdf-export');replaceControls(original,clone);host.appendChild(clone);
-        const canvas=await window.html2canvas(clone,{scale:1.5,backgroundColor:'#ffffff',useCORS:true,logging:false,width:760,windowWidth:1200,scrollX:0,scrollY:0});
-        const pxPerMm=canvas.width/printableW, sliceHeight=Math.floor((footerY-marginTop-10)*pxPerMm);
-        let sourceY=0;
-        while(sourceY<canvas.height){
-          const partH=Math.min(sliceHeight,canvas.height-sourceY), slice=document.createElement('canvas');
-          slice.width=canvas.width;slice.height=partH;
-          const ctx=slice.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,slice.width,slice.height);
-          ctx.drawImage(canvas,0,sourceY,canvas.width,partH,0,0,canvas.width,partH);
-          if(pdfPage>0)doc.addPage();pdfPage++;
-          doc.addImage(slice.toDataURL('image/jpeg',.94),'JPEG',marginX,marginTop,printableW,partH/pxPerMm,undefined,'FAST');
-          footer(pdfPage);sourceY+=partH;
-        }
+        const clone=original.cloneNode(true);
+        clone.classList.add('pdf-export');
+        const originalControls=[...original.querySelectorAll('input,textarea,select')];
+        const clonedControls=[...clone.querySelectorAll('input,textarea,select')];
+        clonedControls.forEach((el,i)=>{
+          const src=originalControls[i]; if(!src)return;
+          if(el.type==='checkbox'||el.type==='radio') el.checked=src.checked;
+          else el.value=src.value;
+        });
+        const keep = cleanCloneForAnswers(clone, original.dataset.page);
+        if (!keep) continue;
+        replaceControls(original,clone);
+        host.appendChild(clone);
+        const canvas=await window.html2canvas(clone,{scale:1.6,backgroundColor:'#ffffff',useCORS:true,logging:false,width:760,windowWidth:1200,scrollX:0,scrollY:0});
+        // Una sección por página: se escala completa para que ningún cuadro ni las notas se corten.
+        const availableH = footerY - marginTop - 10;
+        const pxPerMm = canvas.width / printableW;
+        const naturalH = canvas.height / pxPerMm;
+        const fitScale = Math.min(1, availableH / naturalH);
+        const drawW = printableW * fitScale;
+        const drawH = naturalH * fitScale;
+        const drawX = (W - drawW) / 2;
+        if(pdfPage>0) doc.addPage();
+        pdfPage++;
+        doc.addImage(canvas.toDataURL('image/jpeg',.94),'JPEG',drawX,marginTop,drawW,drawH,undefined,'FAST');
+        footer(pdfPage);
         host.removeChild(clone);
       }
       const name=document.querySelector('[data-label="Nombre del participante"]');
