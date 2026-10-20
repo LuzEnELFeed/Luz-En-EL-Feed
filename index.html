@@ -152,7 +152,6 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
   <button class="btn-gold" type="button" id="pdfBottom">Descargar PDF con mis respuestas</button>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (() => {
   const allFields = () => [...document.querySelectorAll('[data-label]')];
@@ -195,204 +194,191 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
     document.getElementById('progress').style.width = (fields.length ? filled/fields.length*100 : 0) + '%';
   }
   async function downloadPDF() {
-    if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
-      alert('No se pudo cargar el generador visual del PDF. Comprueba tu conexión a internet e inténtalo de nuevo.');
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('No se pudo cargar el generador de PDF. Comprueba tu conexión a internet e inténtalo de nuevo.');
       return;
     }
+
+    // Generación nativa con jsPDF: evita fallos de html2canvas en algunos celulares.
+    // El documento contiene solo los campos interactivos respondidos, con el estilo del cuaderno.
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pages = [...document.querySelectorAll('#workbook .sheet')];
-    const pageW = 210, marginX = 17, marginTop = 10, printableW = pageW - marginX * 2, footerY = 287;
-    const host = document.createElement('div');
-    Object.assign(host.style, {position:'fixed',left:'-12000px',top:'0',width:'800px',zIndex:'-1',background:'#fff',overflow:'visible',pointerEvents:'none'});
-    document.body.appendChild(host);
-    const style = document.createElement('style');
-    style.textContent = `
-      .pdf-export{width:760px!important;max-width:none!important;min-width:760px!important;margin:0!important;box-shadow:none!important;overflow:visible!important;padding:28px 38px 36px!important;height:auto!important;min-height:0!important}
-      .pdf-export.cover{display:none!important}
-      .pdf-export .footer{display:none!important}
-      .pdf-export .field input[type=text],.pdf-export .field input[type=number],.pdf-export .field input[type=date],.pdf-export .line-input{display:block!important;width:100%!important;min-height:34px!important;padding:8px 2px!important;border:0!important;border-bottom:1px solid #cfd5df!important;border-radius:0!important;background:transparent!important;color:#26334a!important;font:inherit!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important}
-      .pdf-export .name-line .print-answer-input{flex:1!important;min-width:0!important}
-      .pdf-export .notes{margin-top:14px!important;padding:13px!important;break-inside:avoid!important;page-break-inside:avoid!important}
-      .pdf-export .notes textarea{min-height:70px!important;height:auto!important;background:transparent!important;line-height:1.65!important;overflow:visible!important}
-      .pdf-export .softbox,.pdf-export .notes,.pdf-export .account-row,.pdf-export .challenge-body,.pdf-export .section-head{break-inside:avoid!important;page-break-inside:avoid!important}
-      .pdf-export .field{margin:10px 0!important}
-      .pdf-export .softbox{margin:12px 0!important;padding:13px!important}
-      .pdf-export .section-head{margin-bottom:14px!important}
-      .pdf-export .pdf-empty{display:none!important}
-      .pdf-export .print-choice{display:inline-block;width:13px;height:13px;box-sizing:border-box;border:1.5px solid #26334a;border-radius:50%;margin-right:5px;vertical-align:-2px;position:relative}
-      .pdf-export .print-choice.checked:after{content:'';position:absolute;width:6px;height:6px;background:#26334a;border-radius:50%;left:2px;top:2px}
-      .pdf-export .print-check{display:inline-block;width:13px;height:13px;border:1.5px solid #26334a;border-radius:2px;margin-right:5px;vertical-align:-2px;position:relative}
-      .pdf-export .print-check.checked{background:#2d8f8c;border-color:#2d8f8c}
-      .pdf-export .print-check.checked:after{content:'✓';position:absolute;color:white;font-size:11px;line-height:12px;left:1px;top:-1px}
-    `;
-    host.appendChild(style);
-    function replaceControls(original, clone) {
-      const b=[...clone.querySelectorAll('input,textarea,select')];
-      b.forEach(el=>{
-        const src=el;
-        if(el.type==='radio'||el.type==='checkbox'){
-          const mark=document.createElement('span');
-          mark.className=(el.type==='radio'?'print-choice':'print-check')+(src.checked?' checked':'');
-          el.replaceWith(mark); return;
-        }
-        const out=document.createElement('div'); out.className='print-answer-input'; out.textContent=src.value||'';
-        Object.assign(out.style,{whiteSpace:'pre-wrap',overflowWrap:'anywhere',color:'#26334a',font:'inherit',boxSizing:'border-box'});
-        if(el.tagName==='TEXTAREA'){
-          out.className='print-answer-textarea';
-          const lines=Math.max(3,(src.value||'').split('\\n').length);
-          Object.assign(out.style,{display:'block',width:'100%',minHeight:Math.max(70,lines*22)+'px',padding:'8px',border:'1px solid #cbd2dd',borderRadius:'7px',background:'#fff'});
-          if(el.closest('.notes')) Object.assign(out.style,{minHeight:Math.max(145,lines*30)+'px',border:'0',borderRadius:'0',background:'repeating-linear-gradient(to bottom,transparent 0,transparent 29px,#d5d9e0 30px,#d5d9e0 31px)'});
-        } else {
-          Object.assign(out.style,{display:'block',width:'100%',minHeight:'34px',padding:'8px 2px',borderBottom:'1px solid #cfd5df'});
-          if(el.closest('.name-line')) Object.assign(out.style,{flex:'1',minWidth:'0'});
-        }
-        el.replaceWith(out);
-      });
+    const W = 210, H = 297, margin = 16, contentW = W - margin * 2;
+    const C = {
+      navy: [29, 44, 75], gold: [246, 184, 63], cream: [255, 245, 220],
+      teal: [45, 143, 140], ink: [38, 51, 74], muted: [125, 134, 148],
+      blue: [232, 241, 251], line: [211, 218, 228], white: [255, 255, 255],
+      red: [252, 235, 234], green: [229, 245, 237]
+    };
+    let pageNum = 0, y = 0, currentSection = '';
+
+    function header(title, subtitle='Respuestas personales') {
+      if (pageNum > 0) doc.addPage();
+      pageNum++;
+      doc.setFillColor(...C.navy); doc.rect(0, 0, W, 27, 'F');
+      doc.setFillColor(...C.gold); doc.rect(0, 27, W, 2, 'F');
+      doc.setTextColor(...C.white); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text(title, margin, 12);
+      doc.setTextColor(...C.gold); doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+      doc.text(subtitle, margin, 20);
+      y = 38; currentSection = '';
     }
-    function cleanCloneForAnswers(clone, pageIndex) {
-      // El PDF conserva el diseño de los apartados interactivos, no las explicaciones del cuaderno.
-      const remove = el => { if (el && el.parentNode) el.parentNode.removeChild(el); };
-      const hasValue = el => {
-        if (!el) return false;
-        if (el.type === 'checkbox') return el.checked;
-        if (el.type === 'radio') return el.checked;
-        return String(el.value || '').trim().length > 0;
-      };
+    function footer() {
+      doc.setDrawColor(...C.line); doc.setLineWidth(.25);
+      doc.line(margin, 282, W-margin, 282);
+      doc.setTextColor(...C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+      doc.text('Luz en el Feed · Redes Sociales e Influencia con Propósito', margin, 288);
+      doc.text(`Página ${pageNum}`, W-margin, 288, {align:'right'});
+    }
+    function sectionHeading(title, continuation=false) {
+      const label = continuation ? title + ' (continuación)' : title;
+      if (y + 15 > 274) { footer(); header('Luz en el Feed', 'Continuación de respuestas'); }
+      doc.setFillColor(...C.navy); doc.roundedRect(margin, y, contentW, 11, 2.5, 2.5, 'F');
+      doc.setFillColor(...C.gold); doc.circle(margin+6, y+5.5, 2.5, 'F');
+      doc.setTextColor(...C.white); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      doc.text(label, margin+12, y+7.1);
+      y += 16; currentSection = title;
+    }
+    function nextPageForCard(height) {
+      if (y + height > 273) {
+        footer();
+        header('Luz en el Feed', 'Continuación de respuestas');
+        if (currentSection) sectionHeading(currentSection, true);
+      }
+    }
+    function answerCard(question, answer, opts={}) {
+      if (answer === undefined || answer === null || String(answer).trim() === '') return;
+      const q = String(question).trim(), a = String(answer).trim();
+      const width = contentW - 10;
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+      const qLines = doc.splitTextToSize(q, width);
+      doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      const aLines = doc.splitTextToSize(a, width - 4);
+      const labelH = Math.max(8, qLines.length * 4.2 + 4);
+      const answerH = Math.max(12, aLines.length * 4.6 + 7);
+      const totalH = labelH + answerH + 7;
+      nextPageForCard(totalH);
+      doc.setFillColor(...C.cream); doc.roundedRect(margin, y, contentW, labelH, 1.8, 1.8, 'F');
+      doc.setFillColor(...C.gold); doc.roundedRect(margin, y, 2, labelH, 1, 1, 'F');
+      doc.setTextColor(...C.teal); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+      doc.text(qLines, margin+5, y+5.2);
+      y += labelH + 2;
+      doc.setFillColor(...(opts.background || C.blue));
+      doc.roundedRect(margin, y, contentW, answerH, 2, 2, 'F');
+      doc.setTextColor(...C.ink); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      doc.text(aLines, margin+5, y+6);
+      y += answerH + 5;
+    }
+    function val(label) {
+      const el = [...document.querySelectorAll('[data-label]')].find(e => e.dataset.label === label);
+      if (!el) return '';
+      if (el.type === 'checkbox') return el.checked ? 'Completado' : '';
+      return String(el.value || '').trim();
+    }
+    function radio(name) {
+      const el = document.querySelector(`input[type="radio"][name="${name}"]:checked`);
+      return el ? el.value : '';
+    }
+    function accountValue(i) {
+      const inputs = [...document.querySelectorAll('.account-row input[type="text"]')];
+      const name = inputs[i-1] ? inputs[i-1].value.trim() : '';
+      const choice = radio('account'+i);
+      if (!name && !choice) return '';
+      return `${i}. ${name || 'Cuenta sin nombre'}${choice ? ' — ' + choice : ''}`;
+    }
 
-      // La portada y los textos explicativos no forman parte de la hoja de respuestas.
-      if (clone.classList.contains('cover')) return false;
-      clone.querySelectorAll('.objective,.callout,.verse,.two-col,.excuse-table,.pill-list,.lead').forEach(remove);
+    const participant = val('Nombre del participante') || 'Participante';
+    header('Luz en el Feed', 'Redes Sociales e Influencia con Propósito · Respuestas');
+    doc.setTextColor(...C.gold); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+    doc.text('Redes Sociales', margin, 54);
+    doc.text('e Influencia con Propósito', margin, 65);
+    doc.setTextColor(...C.ink); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.text(`Nombre: ${participant}`, margin, 77);
+    doc.setDrawColor(...C.gold); doc.setLineWidth(.8); doc.line(margin, 83, W-margin, 83);
+    y = 93;
 
-      // Segunda hoja de portada: conservar solo el campo Nombre, quitar el objetivo informativo.
-      if (clone.dataset.page === '1') {
-        clone.querySelectorAll('.objective').forEach(remove);
-      }
+    let responseCount = 0;
+    function addSection(title, fields) {
+      const present = fields.filter(f => String(f.get()).trim() !== '');
+      if (!present.length) return;
+      if (y > 255) { footer(); header('Luz en el Feed', 'Respuestas personales'); }
+      sectionHeading(title);
+      present.forEach(f => { answerCard(f.q, f.get(), f.opts || {}); responseCount++; });
+    }
 
-      // Quitar títulos y párrafos que solo introducen información, sin borrar los encabezados de sección.
-      if (clone.dataset.page === '3') {
-        clone.querySelectorAll(':scope > h3').forEach(remove);
-      }
-      if (clone.dataset.page === '4') {
-        clone.querySelectorAll(':scope > h3, :scope > .grid2').forEach(remove);
-      }
-      if (clone.dataset.page === '5') {
-        clone.querySelectorAll(':scope > h3, :scope > p').forEach(remove);
-      }
-      if (clone.dataset.page === '6') {
-        clone.querySelectorAll(':scope > h3, :scope > p').forEach(remove);
-        // En cada reto, mantener título, casilla marcada y notas; quitar el texto de instrucciones.
-        clone.querySelectorAll('.challenge-body').forEach(body => {
-          const title = body.querySelector('b');
-          const label = body.querySelector('label');
-          const textarea = body.querySelector('textarea');
-          [...body.childNodes].forEach(node => {
-            if (node === title || node === label || node === textarea) return;
-            remove(node);
-          });
-          if (label) {
-            const checkbox = label.querySelector('input[type="checkbox"]');
-            const note = textarea && textarea.value.trim();
-            if (!(checkbox && checkbox.checked) && !note) {
-              const challenge = body.closest('.challenge');
-              if (challenge) remove(challenge);
-            }
-          }
+    addSection('Datos del participante', [
+      {q:'Nombre', get:()=>val('Nombre del participante')}
+    ]);
+    addSection('1. Diagnóstico digital', [
+      {q:'Horas al día frente a la pantalla', get:()=>val('Horas al día frente a la pantalla')},
+      {q:'Lo primero que reviso al despertar', get:()=>val('Lo primero que reviso al despertar')},
+      {q:'Lo último que reviso al acostarme', get:()=>val('Lo último que reviso al acostarme')},
+      {q:'Soy más…', get:()=>radio('type')},
+      {q:'¿Quién está influyendo en quién: yo en las redes o las redes en mí?', get:()=>val('Reflexión: quién influye en quién')},
+      {q:'Mis notas', get:()=>val('Mis notas — Diagnóstico digital')}
+    ]);
+
+    const accounts = [accountValue(1), accountValue(2), accountValue(3)].filter(Boolean);
+    if (accounts.length || val('Mis notas — Lo que consumo me moldea')) {
+      sectionHeading('2. Lo que consumo me moldea');
+      if (accounts.length) {
+        const titleH = 11, rowH = 12, boxH = titleH + accounts.length * rowH + 8;
+        nextPageForCard(boxH + 8);
+        doc.setFillColor(...C.blue); doc.roundedRect(margin, y, contentW, boxH, 3, 3, 'F');
+        doc.setTextColor(...C.navy); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+        doc.text('MIS 3 CUENTAS QUE MÁS VEO', margin+6, y+8);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...C.muted);
+        doc.text('¿Me acercan o me alejan de Dios?', margin+6, y+15);
+        let ay = y + 24;
+        accounts.forEach((account, idx) => {
+          doc.setDrawColor(...C.line); doc.setLineWidth(.25);
+          if (idx > 0) doc.line(margin+6, ay-4, W-margin-6, ay-4);
+          doc.setTextColor(...C.ink); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+          const lines = doc.splitTextToSize(account, contentW-16);
+          doc.text(lines, margin+6, ay);
+          ay += Math.max(rowH, lines.length*4.5+3);
         });
+        y += boxH + 7; responseCount += accounts.length;
       }
-
-      // Convertir campos sin respuesta en espacios que no se imprimen.
-      clone.querySelectorAll('.field').forEach(field => {
-        const controls = [...field.querySelectorAll('input,textarea,select')];
-        if (!controls.length) return;
-        const answered = controls.some(hasValue);
-        if (!answered) remove(field);
-      });
-
-      // En las notas, ocultar el cuadro si no hay texto; si lo hay, ajustar su altura al contenido.
-      clone.querySelectorAll('.notes').forEach(notes => {
-        const textarea = notes.querySelector('textarea');
-        if (!textarea || !textarea.value.trim()) { remove(notes); return; }
-        const lines = textarea.value.split('\n').length;
-        textarea.style.minHeight = Math.max(52, Math.min(160, lines * 22 + 22)) + 'px';
-      });
-
-      // En la tabla de cuentas, solo conservar las filas que tengan nombre o una opción seleccionada.
-      clone.querySelectorAll('.account-row').forEach(row => {
-        const text = row.querySelector('input[type="text"]');
-        const radios = [...row.querySelectorAll('input[type="radio"]')];
-        if (!(text && text.value.trim()) && !radios.some(r => r.checked)) remove(row);
-      });
-
-      // Si una caja interactiva quedó vacía después del filtrado, quitarla para no dejar páginas vacías.
-      clone.querySelectorAll('.softbox').forEach(box => {
-        const hasText = [...box.querySelectorAll('input,textarea')].some(hasValue);
-        if (!hasText) remove(box);
-      });
-
-      // Ocultar cualquier control vacío que no haya quedado dentro de un campo estándar.
-      clone.querySelectorAll('input[type="text"],input[type="date"],input[type="number"],textarea').forEach(el => {
-        if (!hasValue(el) && !el.closest('.account-row')) {
-          const field = el.closest('.field');
-          if (field) remove(field);
-        }
-      });
-
-      // No exportar secciones que no tengan respuestas.
-      const hasAnswer = [...clone.querySelectorAll('input,textarea,select')]
-        .some(el => hasValue(el));
-      const hasFilledAccount = [...clone.querySelectorAll('.account-row input[type="text"]')].some(el => el.value.trim());
-      const hasVisibleAnswer = hasAnswer || hasFilledAccount;
-      const hasName = [...clone.querySelectorAll('.name-line input')].some(el => el.value.trim());
-      const hasSection = !!clone.querySelector('.section-head');
-      return hasVisibleAnswer || hasName || (hasSection && clone.dataset.page === '2');
+      if (val('Mis notas — Lo que consumo me moldea')) {
+        answerCard('MIS NOTAS', val('Mis notas — Lo que consumo me moldea'));
+        responseCount++;
+      }
     }
 
-    function footer(n){
-      doc.setDrawColor(220,225,232);doc.setLineWidth(.25);doc.line(marginX,footerY-5,210-marginX,footerY-5);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(135,143,156);
-      doc.text('Luz en el Feed · Redes Sociales e Influencia con Propósito',marginX,footerY);
-      doc.text(`Página ${n}`,210-marginX,footerY,{align:'right'});
+    addSection('3. De consumidor a creador', [
+      {q:'El pilar que más necesito trabajar es', get:()=>val('El pilar que más necesito trabajar')},
+      {q:'Mis notas', get:()=>val('Mis notas — De consumidor a creador')}
+    ]);
+    addSection('4. Empieza con lo que tienes', [
+      {q:'Mi excusa más común es', get:()=>val('Mi excusa más común')},
+      {q:'Lo que ya tengo en mi mano para empezar', get:()=>val('Lo que ya tengo en mi mano para empezar')},
+      {q:'Mis notas', get:()=>val('Mis notas — Empieza con lo que tienes')}
+    ]);
+    addSection('5. Desafío de 5 días', [
+      {q:'Creador 1 — Nombre', get:()=>val('Nombre Creador 1')},
+      {q:'Creador 1 — Lo que aprendí', get:()=>val('Lo que aprendí del Creador 1')},
+      {q:'Creador 2 — Nombre', get:()=>val('Nombre Creador 2')},
+      {q:'Creador 2 — Lo que aprendí', get:()=>val('Lo que aprendí del Creador 2')},
+      {q:'Día 1 — Limpieza de feed', get:()=>[val('Desafío día 1 completado'),val('Notas del desafío día 1')].filter(Boolean).join(' · ')},
+      {q:'Día 2 — Oración e intercesión', get:()=>[val('Desafío día 2 completado'),val('Notas del desafío día 2')].filter(Boolean).join(' · ')},
+      {q:'Día 3 — Mi primera creación', get:()=>[val('Desafío día 3 completado'),val('Notas del desafío día 3')].filter(Boolean).join(' · ')},
+      {q:'Día 4 — Publicación de luz', get:()=>[val('Desafío día 4 completado'),val('Notas del desafío día 4')].filter(Boolean).join(' · ')},
+      {q:'Día 5 — Mensaje de ánimo', get:()=>[val('Desafío día 5 completado'),val('Notas del desafío día 5')].filter(Boolean).join(' · ')},
+      {q:'Mi compromiso', get:()=>val('Mi compromiso de 5 días')},
+      {q:'Firma', get:()=>val('Firma')},
+      {q:'Fecha', get:()=>val('Fecha del compromiso')}
+    ]);
+
+    if (responseCount === 0) {
+      sectionHeading('Respuestas');
+      answerCard('Aviso', 'Todavía no has completado ningún campo del cuaderno.');
     }
-    try {
-      let pdfPage=0;
-      for(const original of pages){
-        const clone=original.cloneNode(true);
-        clone.classList.add('pdf-export');
-        const originalControls=[...original.querySelectorAll('input,textarea,select')];
-        const clonedControls=[...clone.querySelectorAll('input,textarea,select')];
-        clonedControls.forEach((el,i)=>{
-          const src=originalControls[i]; if(!src)return;
-          if(el.type==='checkbox'||el.type==='radio') el.checked=src.checked;
-          else el.value=src.value;
-        });
-        const keep = cleanCloneForAnswers(clone, original.dataset.page);
-        if (!keep) continue;
-        replaceControls(original,clone);
-        host.appendChild(clone);
-        const canvas=await window.html2canvas(clone,{scale:1.6,backgroundColor:'#ffffff',useCORS:true,logging:false,width:760,windowWidth:1200,scrollX:0,scrollY:0});
-        // Una sección por página: se escala completa para que ningún cuadro ni las notas se corten.
-        const availableH = footerY - marginTop - 10;
-        const pxPerMm = canvas.width / printableW;
-        const naturalH = canvas.height / pxPerMm;
-        const fitScale = Math.min(1, availableH / naturalH);
-        const drawW = printableW * fitScale;
-        const drawH = naturalH * fitScale;
-        const drawX = (W - drawW) / 2;
-        if(pdfPage>0) doc.addPage();
-        pdfPage++;
-        doc.addImage(canvas.toDataURL('image/jpeg',.94),'JPEG',drawX,marginTop,drawW,drawH,undefined,'FAST');
-        footer(pdfPage);
-        host.removeChild(clone);
-      }
-      const name=document.querySelector('[data-label="Nombre del participante"]');
-      const safe=((name&&name.value)||'participante').trim().replace(/[^a-z0-9-_]/gi,'_').slice(0,40)||'participante';
-      doc.save(`Luz_en_el_Feed_${safe}.pdf`);
-    } catch(err) {
-      console.error(err);alert('No se pudo generar el PDF visual. Recarga la página con internet e inténtalo otra vez.');
-    } finally {host.remove();}
+    footer();
+    const safe = participant.trim().replace(/[^a-z0-9-_]/gi,'_').slice(0,40) || 'participante';
+    doc.save(`Luz_en_el_Feed_${safe}.pdf`);
   }
-document.getElementById('saveBottom').addEventListener('click', save);
+  document.getElementById('saveBottom').addEventListener('click', save);
   document.getElementById('pdfBottom').addEventListener('click', downloadPDF);
   document.addEventListener('input', updateProgress);
   document.addEventListener('change', updateProgress);
