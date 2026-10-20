@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d2c4b">
+<title>Luz en el Feed | Guía del participante</title>
+<style>
+:root{--navy:#1d2c4b;--gold:#f6b83f;--cream:#fff5dc;--teal:#2d8f8c;--ink:#26334a;--muted:#687386;--bluewash:#e8f1fb;--line:#cfd5df;--red:#d95353;--green:#2d9a6b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#eef1f5;color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(29,44,75,.97);color:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 14px #16213a25}
+.brand{font-weight:800;letter-spacing:.06em;font-size:.88rem}.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:.9rem}.btn-gold{background:var(--gold);color:var(--navy)}.btn-light{background:white;color:var(--navy)}.btn-outline{background:transparent;border:1px solid #ffffff88;color:white}
+.progress-wrap{background:#dfe4ec;height:5px}.progress{height:5px;width:0;background:var(--gold);transition:width .2s}
+main{max-width:900px;margin:24px auto 50px;padding:0 14px}.sheet{background:white;margin:0 auto 24px;max-width:760px;min-height:950px;padding:44px 48px 34px;box-shadow:0 8px 26px #18243c12;position:relative;overflow:hidden}
+.cover{background:var(--navy);color:white;min-height:780px;padding:54px 48px 38px;border-bottom:10px solid var(--gold)}
+.cover .eyebrow{color:var(--gold);font-weight:800;font-size:1rem;margin:30px 0 26px}.cover h1{font-size:clamp(2.5rem,7vw,4rem);line-height:1.12;margin:0;letter-spacing:-.04em}.cover h1 span{color:var(--gold)}.cover .sub{font-size:1.3rem;margin-top:30px;color:#e5eaf2}.cover .small{color:#bdc8d8}.target{position:absolute;right:-45px;top:65px;width:340px;height:340px;border-radius:50%;background:#ffffff0b;display:grid;place-items:center}.target:before{content:"";width:72%;height:72%;border-radius:50%;background:#f6b83f20;display:block}.target:after{content:"";position:absolute;width:24%;height:24%;border-radius:50%;background:var(--gold);box-shadow:0 0 0 32px #f6b83f30,0 0 0 68px #f6b83f16}
+.cover-verse{position:absolute;bottom:55px;left:48px;right:48px;color:#e3e8f1;font-style:italic}.cover-verse strong{display:block;color:var(--gold);font-style:normal;margin-top:6px;font-size:.9rem}
+.name-line{margin-top:42px;display:flex;align-items:center;gap:8px;font-weight:700}.name-line input{flex:1;border:0;border-bottom:1px solid var(--line);border-radius:0}
+.objective{background:var(--cream);border:1px solid #f4e4b7;border-left:6px solid var(--gold);border-radius:14px;padding:17px 20px;margin-top:24px}.objective b,.eyelabel{display:block;color:var(--teal);font-size:.8rem;font-weight:800;letter-spacing:.02em;margin-bottom:5px}
+.section-head{background:var(--navy);color:white;border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:15px;margin-bottom:24px}.num{flex:0 0 48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--navy);font-size:1.6rem;font-weight:900}.section-head h2{margin:0;font-size:1.55rem;line-height:1.2}.section-head p{margin:5px 0 0;color:#f5c75e;font-size:.94rem}
+h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{margin:18px 0 20px}.callout{background:var(--cream);border-left:5px solid var(--gold);padding:15px 17px;border-radius:10px;margin:16px 0}.callout strong{display:block;color:#a97815;font-size:.8rem;margin-bottom:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.verse{background:var(--cream);border-left:5px solid var(--gold);border-radius:10px;padding:13px 14px;font-size:.92rem}.verse b{display:block;color:#a97815;font-size:.77rem;margin-bottom:5px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:12px;overflow:hidden;margin:18px 0}.col-head{padding:11px 13px;color:white;font-weight:800;font-size:.85rem}.col-head.red{background:var(--red)}.col-head.green{background:var(--green)}.cell{padding:11px 13px;font-size:.9rem;border-bottom:1px solid white}.cell.red{background:#fcebea}.cell.green{background:#e5f5ed}
+.field{margin:14px 0}.field label,.field-label{display:block;font-weight:700;font-size:.92rem;margin-bottom:7px}.field input[type=text],.field input[type=number],.field input[type=date],.field textarea,.line-input{width:100%;border:1px solid #cbd2dd;border-radius:8px;padding:11px 12px;font:inherit;color:var(--ink);background:#fff}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field textarea:focus{outline:2px solid #f6b83f88;border-color:#d7a32f}
+.softbox{background:var(--bluewash);padding:17px;border-radius:14px;margin:20px 0}.account-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;margin:12px 0}.account-row input[type=text]{min-width:0;width:100%;border:0;border-bottom:1px solid #aeb9c8;background:transparent;padding:8px 2px;font:inherit}.choice{display:flex;align-items:center;gap:6px;font-size:.88rem;white-space:nowrap}.choice input{accent-color:var(--teal);width:17px;height:17px}
+.notes{border:2px solid var(--teal);border-radius:14px;padding:16px;margin-top:24px}.notes textarea{width:100%;min-height:145px;border:0;resize:vertical;font:inherit;line-height:2.1;background:repeating-linear-gradient(to bottom,transparent 0,transparent 29px,#d5d9e0 30px,#d5d9e0 31px);padding:0 4px;outline:none}
+.pill-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.pill{border:1px solid #d6dce5;border-radius:12px;padding:14px;text-align:center;background:#fff}.pill b{display:block;color:var(--navy);margin-bottom:4px}.excuse-table{display:grid;grid-template-columns:1fr 1fr;border-radius:12px;overflow:hidden;margin:20px 0}.excuse-table .th{background:var(--navy);color:white;padding:11px;font-weight:800}.excuse-table .td{padding:11px;background:#fcebea;border-bottom:1px solid white;font-size:.9rem}.excuse-table .td:nth-child(odd){background:#fcebea}.excuse-table .td:nth-child(even){background:#e5f5ed}
+.challenge{display:grid;grid-template-columns:76px 1fr;gap:12px;margin:12px 0;align-items:start}.day{background:var(--navy);color:var(--gold);border-radius:10px;text-align:center;padding:12px 5px;font-weight:900}.challenge-body{border:1px solid #e0e4eb;border-radius:10px;padding:12px}.challenge-body b{display:block;color:var(--navy)}.challenge-body label{display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:.9rem}.challenge-body input{accent-color:var(--teal);margin-top:4px}
+.closing-verse{background:var(--navy);color:white;text-align:center;border-radius:12px;padding:23px;margin-top:25px;font-style:italic}.closing-verse strong{display:block;color:var(--gold);font-style:normal;margin-top:8px}
+.footer{position:absolute;bottom:17px;left:48px;right:48px;border-top:1px solid #edf0f4;padding-top:9px;color:#9098a7;font-size:.72rem;display:flex;justify-content:space-between}
+.tiny{font-size:.85rem;color:var(--muted)}.actions-bottom{max-width:760px;margin:0 auto 35px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+@media(max-width:600px){.topbar{padding:10px 16px;min-height:54px}.brand{font-size:.9rem}main{margin-top:8px;padding:0 8px}.sheet{padding:22px 17px 42px;min-height:auto;margin-bottom:10px}.cover{min-height:590px;padding:34px 24px 30px}.cover .eyebrow{margin-top:16px;margin-bottom:20px}.cover-verse{left:24px;right:24px;bottom:28px}.target{right:-110px;top:35px;width:280px;height:280px;opacity:.8}.section-head{padding:14px}.section-head h2{font-size:1.2rem}.grid2{grid-template-columns:1fr}.pill-list{grid-template-columns:1fr}.account-row{grid-template-columns:1fr 1fr}.account-row input[type=text]{grid-column:1/-1}.footer{left:20px;right:20px}.two-col{font-size:.82rem}.cover h1{font-size:2.45rem}.name-line{margin-top:8px}.objective{margin-top:12px;padding:13px 15px}.section-head{margin-bottom:17px}.notes{margin-top:16px;padding:13px}}
+@media print{body{background:white}.topbar,.progress-wrap,.actions-bottom{display:none!important}main{margin:0;padding:0;max-width:none}.sheet{box-shadow:none;margin:0 auto;max-width:none;min-height:0;height:auto;page-break-after:always;break-after:page;padding:16mm 16mm 25mm;overflow:visible}.cover{min-height:265mm;height:265mm;padding:25mm 16mm 18mm}.footer{position:absolute;bottom:8mm;left:16mm;right:16mm;z-index:2;background:white;padding-top:3mm}.notes{break-inside:avoid;page-break-inside:avoid}.notes textarea{border:0;min-height:34mm}.field input,.field textarea{border:0;border-bottom:1px solid #aaa;border-radius:0}.sheet:last-child{page-break-after:auto}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">LUZ EN EL FEED</div>
+
+</header>
+<div class="progress-wrap"><div class="progress" id="progress"></div></div>
+<main id="workbook">
+<section class="sheet cover" data-page="1">
+  <div class="target" aria-hidden="true"></div>
+  <div class="eyebrow">LUZ EN EL FEED</div>
+  <h1>Redes Sociales<br>e Influencia<br><span>con Propósito</span></h1>
+  <div class="sub">Guía del participante</div><p class="small">Taller juvenil · Discipulado digital</p>
+  <div class="cover-verse">“Así alumbre vuestra luz delante de los hombres.”<strong>MATEO 5:16</strong></div>
+</section>
+<section class="sheet" data-page="1">
+  <div class="name-line">Nombre: <input type="text" data-label="Nombre del participante" aria-label="Nombre del participante"></div>
+  <div class="objective"><b>MI OBJETIVO HOY</b>Pasar de ser un consumidor pasivo a un creador de contenido con propósito, usando las redes como un lugar para mostrar la luz de Cristo.</div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 1</span></div>
+</section>
+<section class="sheet" data-page="2">
+  <div class="section-head"><div class="num">1</div><div><h2>Diagnóstico digital</h2><p>¿Soy influenciador o consumidor?</p></div></div>
+  <div class="callout"><strong>IDEA CLAVE</strong>La tecnología no es buena ni mala por sí sola: amplifica lo que hay en el corazón. Quien crea contenido usa las redes como herramienta; quien solo consume corre el riesgo de que las redes lo usen a él.</div>
+  <h3>MI DIAGNÓSTICO</h3>
+  <div class="field"><label for="hours">Horas al día frente a la pantalla:</label><input id="hours" type="text" data-label="Horas al día frente a la pantalla"></div>
+  <div class="field"><label for="morning">Lo primero que reviso al despertar:</label><input id="morning" type="text" data-label="Lo primero que reviso al despertar"></div>
+  <div class="field"><label for="night">Lo último que reviso al acostarme:</label><input id="night" type="text" data-label="Lo último que reviso al acostarme"></div>
+  <div class="field"><span class="field-label">Soy más…</span><div class="choice"><label><input type="radio" name="type" value="Consumidor"> Consumidor</label><label><input type="radio" name="type" value="Creador"> Creador</label><label><input type="radio" name="type" value="Un poco de ambos"> Un poco de ambos</label></div></div>
+  <h3>PARA PENSAR</h3><div class="field"><label for="thinking">¿Quién está influyendo en quién: yo en las redes o las redes en mí?</label><textarea id="thinking" data-label="Reflexión: quién influye en quién"></textarea></div>
+  <div class="notes"><span class="eyelabel">MIS NOTAS</span><textarea data-label="Mis notas — Diagnóstico digital" aria-label="Mis notas"></textarea></div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 2</span></div>
+</section>
+<section class="sheet" data-page="3">
+  <div class="section-head"><div class="num">2</div><div><h2>Lo que consumo me moldea</h2><p>¿En qué me afecta o me beneficia?</p></div></div>
+  <p class="lead">Lo que miro una y otra vez moldea lo que pienso, lo que deseo y lo que creo de mí mismo.</p>
+  <div class="grid2">
+    <div class="verse"><b>PROVERBIOS 4:23</b><i>“Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida.”</i></div>
+    <div class="verse"><b>SALMO 101:3</b><i>“No pondré delante de mis ojos cosa injusta.”</i></div>
+    <div class="verse"><b>ROMANOS 12:2</b><i>“No os conforméis a este siglo, sino transformaos por medio de la renovación de vuestro entendimiento.”</i></div>
+    <div class="verse"><b>FILIPENSES 4:8</b>Pablo nos invita a pensar en lo verdadero, lo puro, lo amable y lo digno de alabanza.</div>
+  </div>
+  <div class="two-col">
+    <div class="col-head red">ME AFECTA CUANDO…</div><div class="col-head green">ME BENEFICIA CUANDO…</div>
+    <div class="cell red">Genera comparación, envidia y ansiedad</div><div class="cell green">Inspira gratitud, servicio y esperanza</div>
+    <div class="cell red">Me hace buscar identidad en likes y seguidores</div><div class="cell green">Me recuerda quién soy en Cristo</div>
+    <div class="cell red">Normaliza el pecado, el chisme y la vanidad</div><div class="cell green">Edifica, enseña y fortalece mi fe</div>
+    <div class="cell red">Me roba tiempo de Dios, familia y estudios</div><div class="cell green">Me aporta ideas, creatividad y aprendizaje útil</div>
+  </div>
+  <div class="softbox"><b>MIS 3 CUENTAS QUE MÁS VEO</b><p class="tiny">¿Me acercan o me alejan de Dios?</p>
+    <div class="account-row"><input type="text" data-label="Cuenta 1 que más veo" aria-label="Cuenta 1"><label class="choice"><input type="radio" name="account1" value="Me acerca"> Me acerca</label><label class="choice"><input type="radio" name="account1" value="Me aleja"> Me aleja</label></div>
+    <div class="account-row"><input type="text" data-label="Cuenta 2 que más veo" aria-label="Cuenta 2"><label class="choice"><input type="radio" name="account2" value="Me acerca"> Me acerca</label><label class="choice"><input type="radio" name="account2" value="Me aleja"> Me aleja</label></div>
+    <div class="account-row"><input type="text" data-label="Cuenta 3 que más veo" aria-label="Cuenta 3"><label class="choice"><input type="radio" name="account3" value="Me acerca"> Me acerca</label><label class="choice"><input type="radio" name="account3" value="Me aleja"> Me aleja</label></div>
+  </div>
+  <div class="notes"><span class="eyelabel">MIS NOTAS</span><textarea data-label="Mis notas — Lo que consumo me moldea" aria-label="Mis notas"></textarea></div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 3</span></div>
+</section>
+<section class="sheet" data-page="4">
+  <div class="section-head"><div class="num">3</div><div><h2>De consumidor a creador</h2><p>Dios nos llamó a ser luz, no espectadores</p></div></div>
+  <div class="callout"><strong>MATEO 5:14, 16</strong>“Vosotros sois la luz del mundo… Así alumbre vuestra luz delante de los hombres.”</div>
+  <div class="callout"><strong>1 PEDRO 4:10</strong>“Cada uno según el don que ha recibido, minístrelo a los otros, como buenos administradores de la multiforme gracia de Dios.”</div>
+  <div class="callout"><strong>EFESIOS 4:29</strong>“Ninguna palabra corrompida salga de vuestra boca, sino la que sea buena para la edificación, para dar gracia a los oyentes.”</div>
+  <h3>TRES PILARES DEL CREADOR CON PROPÓSITO</h3>
+  <div class="pill-list">
+    <div class="pill"><b>1. Autenticidad sobre apariencia</b><span class="tiny">La luz brilla cuando soy real, no cuando finjo una vida perfecta.</span></div>
+    <div class="pill"><b>2. Coherencia digital y presencial</b><span class="tiny">Lo que soy en comentarios, chats y grupos es igual a lo que soy fuera de la pantalla.</span></div>
+    <div class="pill"><b>3. Edificación intencional</b><span class="tiny">Antes de publicar: ¿esto construye, anima y aporta valor, o promueve división, chisme y vanidad?</span></div>
+  </div>
+  <h3>IDEAS DE CONTENIDO CON PROPÓSITO</h3>
+  <div class="grid2"><div class="verse">Testimonios breves</div><div class="verse">Citas bíblicas diseñadas</div><div class="verse">Reflexiones de 30 segundos</div><div class="verse">Playlists que edifiquen</div><div class="verse">Mensajes de ánimo</div><div class="verse">Lo que Dios hizo en mi semana</div></div>
+  <div class="field"><label for="pillar">El pilar que más necesito trabajar es:</label><input id="pillar" type="text" data-label="El pilar que más necesito trabajar"></div>
+  <div class="notes"><span class="eyelabel">MIS NOTAS</span><textarea data-label="Mis notas — De consumidor a creador" aria-label="Mis notas"></textarea></div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 4</span></div>
+</section>
+<section class="sheet" data-page="5">
+  <div class="section-head"><div class="num">4</div><div><h2>Empieza con lo que tienes</h2><p>¿Necesito un estudio o grandes equipos?</p></div></div>
+  <div class="callout" style="background:var(--navy);color:white;border:0"><strong style="color:var(--gold);font-size:1.4rem">NO.</strong>No necesito un estudio ni grandes equipos para empezar. Dios usa lo que ya tengo en la mano, y empezar pequeño es parte del plan.</div>
+  <div class="grid2">
+    <div class="verse"><b>ÉXODO 4:2</b>Dios le preguntó a Moisés: “¿Qué es eso que tienes en tu mano?” Era una vara de pastor.</div>
+    <div class="verse"><b>ZACARÍAS 4:10</b>“Porque ¿quién menospreció el día de las pequeñeces?”</div>
+    <div class="verse"><b>JUAN 6:9–13</b>Un niño entregó cinco panes y dos peces, y Jesús los multiplicó para miles.</div>
+    <div class="verse"><b>1 SAMUEL 17:40</b>David enfrentó a Goliat con una honda y cinco piedras, no con la armadura del rey.</div>
+  </div>
+  <div class="excuse-table"><div class="th">MI EXCUSA</div><div class="th">LA VERDAD</div>
+    <div class="td">“No tengo buen equipo”</div><div class="td">Mi celular y mi voz son suficientes para empezar</div>
+    <div class="td">“No tengo seguidores”</div><div class="td">Una sola persona edificada vale el esfuerzo</div>
+    <div class="td">“No sé editar”</div><div class="td">Se aprende con tutoriales gratuitos y practicando</div>
+    <div class="td">“Me da pena”</div><div class="td">Pablo dijo que no se avergonzaba del Evangelio (Romanos 1:16)</div>
+    <div class="td">“No tengo nada que decir”</div><div class="td">Mi testimonio es único y nadie más lo puede contar</div>
+  </div>
+  <div class="softbox">
+    <div class="field"><label for="excuse">Mi excusa más común es:</label><input id="excuse" type="text" data-label="Mi excusa más común"></div>
+    <div class="field"><label for="resources">Lo que ya tengo en mi mano para empezar:</label><input id="resources" type="text" data-label="Lo que ya tengo en mi mano para empezar"></div>
+  </div>
+  <div class="notes"><span class="eyelabel">MIS NOTAS</span><textarea data-label="Mis notas — Empieza con lo que tienes" aria-label="Mis notas"></textarea></div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 5</span></div>
+</section>
+<section class="sheet" data-page="6">
+  <div class="section-head"><div class="num">5</div><div><h2>Desafío de 5 días</h2><p>De la teoría a la práctica</p></div></div>
+  <p>Lo aprendido solo cambia vidas si se aplica. Marca cada reto al cumplirlo.</p>
+  <h3>EJEMPLOS DE LA IGLESIA</h3>
+  <div class="grid2">
+    <div class="softbox"><b>CREADOR 1</b><div class="field"><label>Nombre:</label><input type="text" data-label="Nombre Creador 1"></div><div class="field"><label>Lo que aprendí:</label><textarea data-label="Lo que aprendí del Creador 1"></textarea></div></div>
+    <div class="softbox"><b>CREADOR 2</b><div class="field"><label>Nombre:</label><input type="text" data-label="Nombre Creador 2"></div><div class="field"><label>Lo que aprendí:</label><textarea data-label="Lo que aprendí del Creador 2"></textarea></div></div>
+  </div>
+  <h3>MI DESAFÍO</h3>
+  <div class="challenge"><div class="day">DÍA 1</div><div class="challenge-body"><b>Limpieza de feed</b>Dejo de seguir 3 cuentas que me roben la paz o me lleven a la comparación o la tentación, y sigo 3 que edifiquen.<label><input type="checkbox" data-label="Desafío día 1 completado"> Marcar como completado</label><textarea data-label="Notas del desafío día 1" placeholder="Mis notas (opcional)" style="min-height:52px;margin-top:8px"></textarea></div></div>
+  <div class="challenge"><div class="day">DÍA 2</div><div class="challenge-body"><b>Oración e intercesión</b>Oro por alguien que veo pasando un mal momento y le envío un mensaje de ánimo.<label><input type="checkbox" data-label="Desafío día 2 completado"> Marcar como completado</label><textarea data-label="Notas del desafío día 2" placeholder="Mis notas (opcional)" style="min-height:52px;margin-top:8px"></textarea></div></div>
+  <div class="challenge"><div class="day">DÍA 3</div><div class="challenge-body"><b>Mi primera creación</b>Elijo una idea (testimonio, versículo o reflexión) y la preparo con mi celular.<label><input type="checkbox" data-label="Desafío día 3 completado"> Marcar como completado</label><textarea data-label="Notas del desafío día 3" placeholder="Mis notas (opcional)" style="min-height:52px;margin-top:8px"></textarea></div></div>
+  <div class="challenge"><div class="day">DÍA 4</div><div class="challenge-body"><b>Publicación de luz</b>Publico mi contenido en una historia o publicación, buscando autenticidad y no perfección.<label><input type="checkbox" data-label="Desafío día 4 completado"> Marcar como completado</label><textarea data-label="Notas del desafío día 4" placeholder="Mis notas (opcional)" style="min-height:52px;margin-top:8px"></textarea></div></div>
+  <div class="challenge"><div class="day">DÍA 5</div><div class="challenge-body"><b>Mensaje de ánimo</b>Envío un mensaje directo a alguien que no sea mi amigo cercano para decirle que Dios lo ama.<label><input type="checkbox" data-label="Desafío día 5 completado"> Marcar como completado</label><textarea data-label="Notas del desafío día 5" placeholder="Mis notas (opcional)" style="min-height:52px;margin-top:8px"></textarea></div></div>
+  <div class="softbox"><h3 style="margin-top:0">MI COMPROMISO</h3><div class="field"><label for="commitment">Con la ayuda de Dios, durante estos 5 días voy a:</label><textarea id="commitment" data-label="Mi compromiso de 5 días"></textarea></div><div class="grid2"><div class="field"><label for="signature">Firma:</label><input id="signature" type="text" data-label="Firma"></div><div class="field"><label for="date">Fecha:</label><input id="date" type="date" data-label="Fecha del compromiso"></div></div></div>
+  <div class="footer"><span>Luz en el Feed · Redes Sociales e Influencia con Propósito</span><span>Página 6</span></div>
+</section>
+
+</main>
+<div class="actions-bottom">
+  <button class="btn-light" type="button" id="saveBottom">Guardar respuestas en este navegador</button>
+  <button class="btn-gold" type="button" id="pdfBottom">Descargar PDF con mis respuestas</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(() => {
+  const allFields = () => [...document.querySelectorAll('[data-label]')];
+  const storageKey = 'luz-en-el-feed-respuestas-v1';
+  function collect() {
+    return allFields().map((el, i) => {
+      let value = '';
+      if (el.type === 'radio') {
+        if (!el.checked) return null;
+        value = el.value;
+      } else if (el.type === 'checkbox') value = el.checked ? 'Completado' : 'No completado';
+      else value = el.value || '';
+      if (!value) return null;
+      return {label: el.dataset.label || `Respuesta ${i+1}`, value};
+    }).filter(Boolean);
+  }
+  function save() {
+    const data = {};
+    allFields().forEach((el, i) => {
+      const key = el.dataset.label + '|' + i;
+      data[key] = el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value;
+    });
+    try { localStorage.setItem(storageKey, JSON.stringify(data)); alert('Tus respuestas se guardaron en este navegador.'); }
+    catch(e) { alert('No se pudieron guardar las respuestas en este navegador. Puedes descargar el PDF para conservarlas.'); }
+  }
+  function restore() {
+    try {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      allFields().forEach((el, i) => {
+        const key = el.dataset.label + '|' + i;
+        if (!(key in data)) return;
+        if (el.type === 'checkbox' || el.type === 'radio') el.checked = data[key];
+        else el.value = data[key];
+      });
+    } catch(e) {}
+  }
+  function updateProgress() {
+    const fields = allFields().filter(el => el.type !== 'radio');
+    const filled = fields.filter(el => el.type === 'checkbox' ? el.checked : !!el.value.trim()).length;
+    document.getElementById('progress').style.width = (fields.length ? filled/fields.length*100 : 0) + '%';
+  }
+  async function downloadPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
+      alert('No se pudo cargar el generador visual del PDF. Comprueba tu conexión a internet e inténtalo de nuevo.');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pages = [...document.querySelectorAll('#workbook .sheet')];
+    const pageW = 210, marginX = 17, marginTop = 10, printableW = pageW - marginX * 2, footerY = 287;
+    const host = document.createElement('div');
+    Object.assign(host.style, {position:'fixed',left:'-12000px',top:'0',width:'800px',zIndex:'-1',background:'#fff',overflow:'visible',pointerEvents:'none'});
+    document.body.appendChild(host);
+    const style = document.createElement('style');
+    style.textContent = `
+      .pdf-export{width:760px!important;max-width:none!important;min-width:760px!important;margin:0!important;box-shadow:none!important;overflow:visible!important;padding:44px 48px 34px!important;height:auto!important;min-height:950px!important}
+      .pdf-export.cover{min-height:1050px!important;height:1050px!important;padding:62px 48px 42px!important}
+      .pdf-export .footer{display:none!important}
+      .pdf-export .field input[type=text],.pdf-export .field input[type=number],.pdf-export .field input[type=date],.pdf-export .line-input{display:block!important;width:100%!important;min-height:34px!important;padding:8px 2px!important;border:0!important;border-bottom:1px solid #cfd5df!important;border-radius:0!important;background:transparent!important;color:#26334a!important;font:inherit!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important}
+      .pdf-export .name-line .print-answer-input{flex:1!important;min-width:0!important}
+      .pdf-export .notes textarea{min-height:145px!important}
+      .pdf-export .softbox,.pdf-export .notes,.pdf-export .callout,.pdf-export .verse,.pdf-export .account-row,.pdf-export .challenge-body,.pdf-export .objective,.pdf-export .section-head,.pdf-export .two-col,.pdf-export .excuse-table{break-inside:avoid!important;page-break-inside:avoid!important}
+      .pdf-export .print-choice{display:inline-block;width:13px;height:13px;box-sizing:border-box;border:1.5px solid #26334a;border-radius:50%;margin-right:5px;vertical-align:-2px;position:relative}
+      .pdf-export .print-choice.checked:after{content:'';position:absolute;width:6px;height:6px;background:#26334a;border-radius:50%;left:2px;top:2px}
+      .pdf-export .print-check{display:inline-block;width:13px;height:13px;border:1.5px solid #26334a;border-radius:2px;margin-right:5px;vertical-align:-2px;position:relative}
+      .pdf-export .print-check.checked{background:#2d8f8c;border-color:#2d8f8c}
+      .pdf-export .print-check.checked:after{content:'✓';position:absolute;color:white;font-size:11px;line-height:12px;left:1px;top:-1px}
+    `;
+    host.appendChild(style);
+    function replaceControls(original, clone) {
+      const a=[...original.querySelectorAll('input,textarea,select')], b=[...clone.querySelectorAll('input,textarea,select')];
+      b.forEach((el,i)=>{
+        const src=a[i]; if(!src)return;
+        if(el.type==='radio'||el.type==='checkbox'){
+          const mark=document.createElement('span');
+          mark.className=(el.type==='radio'?'print-choice':'print-check')+(src.checked?' checked':'');
+          el.replaceWith(mark); return;
+        }
+        const out=document.createElement('div'); out.className='print-answer-input'; out.textContent=src.value||'';
+        Object.assign(out.style,{whiteSpace:'pre-wrap',overflowWrap:'anywhere',color:'#26334a',font:'inherit',boxSizing:'border-box'});
+        if(el.tagName==='TEXTAREA'){
+          out.className='print-answer-textarea';
+          const lines=Math.max(3,(src.value||'').split('\\n').length);
+          Object.assign(out.style,{display:'block',width:'100%',minHeight:Math.max(70,lines*22)+'px',padding:'8px',border:'1px solid #cbd2dd',borderRadius:'7px',background:'#fff'});
+          if(el.closest('.notes')) Object.assign(out.style,{minHeight:Math.max(145,lines*30)+'px',border:'0',borderRadius:'0',background:'repeating-linear-gradient(to bottom,transparent 0,transparent 29px,#d5d9e0 30px,#d5d9e0 31px)'});
+        } else {
+          Object.assign(out.style,{display:'block',width:'100%',minHeight:'34px',padding:'8px 2px',borderBottom:'1px solid #cfd5df'});
+          if(el.closest('.name-line')) Object.assign(out.style,{flex:'1',minWidth:'0'});
+        }
+        el.replaceWith(out);
+      });
+    }
+    function footer(n){
+      doc.setDrawColor(220,225,232);doc.setLineWidth(.25);doc.line(marginX,footerY-5,210-marginX,footerY-5);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(135,143,156);
+      doc.text('Luz en el Feed · Redes Sociales e Influencia con Propósito',marginX,footerY);
+      doc.text(`Página ${n}`,210-marginX,footerY,{align:'right'});
+    }
+    try {
+      let pdfPage=0;
+      for(const original of pages){
+        const clone=original.cloneNode(true);clone.classList.add('pdf-export');replaceControls(original,clone);host.appendChild(clone);
+        const canvas=await window.html2canvas(clone,{scale:1.5,backgroundColor:'#ffffff',useCORS:true,logging:false,width:760,windowWidth:1200,scrollX:0,scrollY:0});
+        const pxPerMm=canvas.width/printableW, sliceHeight=Math.floor((footerY-marginTop-10)*pxPerMm);
+        let sourceY=0;
+        while(sourceY<canvas.height){
+          const partH=Math.min(sliceHeight,canvas.height-sourceY), slice=document.createElement('canvas');
+          slice.width=canvas.width;slice.height=partH;
+          const ctx=slice.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,slice.width,slice.height);
+          ctx.drawImage(canvas,0,sourceY,canvas.width,partH,0,0,canvas.width,partH);
+          if(pdfPage>0)doc.addPage();pdfPage++;
+          doc.addImage(slice.toDataURL('image/jpeg',.94),'JPEG',marginX,marginTop,printableW,partH/pxPerMm,undefined,'FAST');
+          footer(pdfPage);sourceY+=partH;
+        }
+        host.removeChild(clone);
+      }
+      const name=document.querySelector('[data-label="Nombre del participante"]');
+      const safe=((name&&name.value)||'participante').trim().replace(/[^a-z0-9-_]/gi,'_').slice(0,40)||'participante';
+      doc.save(`Luz_en_el_Feed_${safe}.pdf`);
+    } catch(err) {
+      console.error(err);alert('No se pudo generar el PDF visual. Recarga la página con internet e inténtalo otra vez.');
+    } finally {host.remove();}
+  }
+document.getElementById('saveBottom').addEventListener('click', save);
+  document.getElementById('pdfBottom').addEventListener('click', downloadPDF);
+  document.addEventListener('input', updateProgress);
+  document.addEventListener('change', updateProgress);
+  restore(); updateProgress();
+})();
+</script>
+</body>
+</html>
