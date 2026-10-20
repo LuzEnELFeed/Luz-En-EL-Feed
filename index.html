@@ -30,7 +30,7 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
 .footer{position:absolute;bottom:17px;left:48px;right:48px;border-top:1px solid #edf0f4;padding-top:9px;color:#9098a7;font-size:.72rem;display:flex;justify-content:space-between}
 .tiny{font-size:.85rem;color:var(--muted)}.actions-bottom{max-width:760px;margin:0 auto 35px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 @media(max-width:600px){.topbar{padding:10px 16px;min-height:54px}.brand{font-size:.9rem}main{margin-top:8px;padding:0 8px}.sheet{padding:22px 17px 42px;min-height:auto;margin-bottom:10px}.cover{min-height:590px;padding:34px 24px 30px}.cover .eyebrow{margin-top:16px;margin-bottom:20px}.cover-verse{left:24px;right:24px;bottom:28px}.target{right:-110px;top:35px;width:280px;height:280px;opacity:.8}.section-head{padding:14px}.section-head h2{font-size:1.2rem}.grid2{grid-template-columns:1fr}.pill-list{grid-template-columns:1fr}.account-row{grid-template-columns:1fr 1fr}.account-row input[type=text]{grid-column:1/-1}.footer{left:20px;right:20px}.two-col{font-size:.82rem}.cover h1{font-size:2.45rem}.name-line{margin-top:8px}.objective{margin-top:12px;padding:13px 15px}.section-head{margin-bottom:17px}.notes{margin-top:16px;padding:13px}}
-@media print{body{background:white}.topbar,.progress-wrap,.actions-bottom{display:none!important}main{margin:0;padding:0;max-width:none}.sheet{box-shadow:none;margin:0;max-width:none;min-height:0;page-break-after:always;break-after:page;padding:20mm 16mm 18mm}.cover{min-height:265mm;padding:25mm 16mm 18mm}.footer{bottom:8mm}.field input,.field textarea{border:0;border-bottom:1px solid #aaa;border-radius:0}.notes textarea{border:0}.sheet:last-child{page-break-after:auto}}
+@media print{body{background:white}.topbar,.progress-wrap,.actions-bottom{display:none!important}main{margin:0;padding:0;max-width:none}.sheet{box-shadow:none;margin:0 auto;max-width:none;min-height:0;height:auto;page-break-after:always;break-after:page;padding:16mm 16mm 25mm;overflow:visible}.cover{min-height:265mm;height:265mm;padding:25mm 16mm 18mm}.footer{position:absolute;bottom:8mm;left:16mm;right:16mm;z-index:2;background:white;padding-top:3mm}.notes{break-inside:avoid;page-break-inside:avoid}.notes textarea{border:0;min-height:34mm}.field input,.field textarea{border:0;border-bottom:1px solid #aaa;border-radius:0}.sheet:last-child{page-break-after:auto}}
 </style>
 </head>
 <body>
@@ -195,84 +195,236 @@ h3{font-size:1rem;margin:24px 0 10px;color:var(--navy)}p{margin:8px 0}.lead{marg
   }
   async function downloadPDF() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
-      alert('No se pudo cargar el generador de PDF. Comprueba tu conexión a internet e inténtalo de nuevo. También puedes usar Imprimir → Guardar como PDF.');
-      window.print(); return;
+      alert('No se pudo cargar el generador de PDF. Comprueba tu conexión a internet e inténtalo de nuevo.');
+      return;
     }
+
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
-    const navy = [29,44,75], gold = [246,184,63], teal = [45,143,140], gray = [95,105,121];
-    const pageW = 210, margin = 17, usable = pageW - margin*2;
-    let page = 0, y = 0;
-    function newPage(title, subtitle='') {
-      if (page > 0) doc.addPage();
-      page++;
-      doc.setFillColor(...navy); doc.rect(0,0,pageW,34,'F');
-      doc.setFillColor(...gold); doc.rect(0,34,pageW,2,'F');
-      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(title, margin, 15);
-      if (subtitle) { doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(246,200,100); doc.text(subtitle, margin, 24); }
-      y = 45;
-      doc.setTextColor(38,51,74);
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const C = {
+      navy: [29, 44, 75],
+      gold: [246, 184, 63],
+      cream: [255, 245, 220],
+      teal: [45, 143, 140],
+      ink: [38, 51, 74],
+      muted: [120, 130, 145],
+      line: [220, 225, 232],
+      blue: [232, 241, 251]
+    };
+    const W = 210, H = 297, margin = 17, usable = W - margin * 2;
+    const footerY = 285, contentBottom = 272;
+    let pageNo = 0, y = 0, currentSection = '';
+
+    function drawHeader(title, subtitle = 'Luz en el Feed · Respuestas personales') {
+      if (pageNo > 0) doc.addPage();
+      pageNo++;
+      doc.setFillColor(...C.navy);
+      doc.rect(0, 0, W, 27, 'F');
+      doc.setFillColor(...C.gold);
+      doc.rect(0, 27, W, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(title, margin, 12);
+      doc.setTextColor(246, 200, 100);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.text(subtitle, margin, 20);
+      y = 38;
+      currentSection = '';
     }
-    function section(label) {
-      if (y > 265) newPage('Luz en el Feed', 'Continuación de respuestas');
-      doc.setFillColor(255,245,220); doc.roundedRect(margin,y,usable,8,1.5,1.5,'F');
-      doc.setTextColor(...teal); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-      doc.text(String(label).toUpperCase().slice(0,100), margin+3, y+5.2);
-      y += 13; doc.setTextColor(38,51,74); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+
+    function drawFooter() {
+      doc.setDrawColor(...C.line);
+      doc.setLineWidth(0.3);
+      doc.line(margin, footerY - 5, W - margin, footerY - 5);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...C.muted);
+      doc.text('Luz en el Feed · Redes Sociales e Influencia con Propósito', margin, footerY);
+      doc.text(`Página ${pageNo}`, W - margin, footerY, { align: 'right' });
     }
-    function addText(label, value) {
-      if (!value) return;
-      const lines = doc.splitTextToSize(String(value), usable-4);
-      const needed = 6 + lines.length*5.1;
-      if (y + needed > 278) newPage('Luz en el Feed', 'Continuación de respuestas');
-      section(label);
-      doc.text(lines, margin+2, y);
-      y += lines.length*5.1 + 7;
-    }
-    newPage('LUZ EN EL FEED', 'Redes Sociales e Influencia con Propósito · Guía del participante');
-    doc.setTextColor(...gold); doc.setFont('helvetica','bold'); doc.setFontSize(23);
-    doc.text('Redes Sociales', margin, 65); doc.text('e Influencia', margin, 77);
-    doc.text('con Propósito', margin, 89);
-    doc.setTextColor(...gray); doc.setFont('helvetica','normal'); doc.setFontSize(12);
-    doc.text('“Así alumbre vuestra luz delante de los hombres.”', margin, 108);
-    doc.setFontSize(10); doc.text('MATEO 5:16', margin, 116);
-    y = 135;
-    const entries = collect();
-    if (!entries.length) addText('Aviso', 'Todavía no has escrito respuestas. Puedes completar el cuaderno y volver a descargar este PDF.');
-    else {
-      const groups = [
-        ['Nombre del participante','Nombre'],
-        ['Diagnóstico digital','Horas al día frente a la pantalla','Lo primero que reviso al despertar','Lo último que reviso al acostarme','Soy más','Reflexión: quién influye en quién','Mis notas — Diagnóstico digital'],
-        ['Lo que consumo me moldea','Cuenta 1 que más veo','Cuenta 2 que más veo','Cuenta 3 que más veo','Mis notas — Lo que consumo me moldea'],
-        ['De consumidor a creador','El pilar que más necesito trabajar','Mis notas — De consumidor a creador'],
-        ['Empieza con lo que tienes','Mi excusa más común','Lo que ya tengo en mi mano para empezar','Mis notas — Empieza con lo que tienes'],
-        ['Desafío de 5 días','Nombre Creador 1','Lo que aprendí del Creador 1','Nombre Creador 2','Lo que aprendí del Creador 2','Mi compromiso de 5 días','Firma','Fecha del compromiso']
-      ];
-      const sectionTitles = ['Datos del participante','1. Diagnóstico digital','2. Lo que consumo me moldea','3. De consumidor a creador','4. Empieza con lo que tienes','5. Desafío de 5 días'];
-      const byLabel = new Map(entries.map(e=>[e.label,e.value]));
-      for (let g=0; g<groups.length; g++) {
-        newPage(sectionTitles[g], 'Luz en el Feed · Redes Sociales e Influencia con Propósito');
-        groups[g].slice(1).forEach(label => { if (byLabel.has(label)) addText(label, byLabel.get(label)); });
-        // Include remaining fields belonging to each page, including checkboxes and notes.
-        const ranges = [
-          ['Nombre del participante'],
-          ['Horas al día frente a la pantalla','Lo primero que reviso al despertar','Lo último que reviso al acostarme','Soy más','Reflexión: quién influye en quién','Mis notas — Diagnóstico digital'],
-          ['Cuenta 1 que más veo','Cuenta 2 que más veo','Cuenta 3 que más veo','Mis notas — Lo que consumo me moldea'],
-          ['El pilar que más necesito trabajar','Mis notas — De consumidor a creador'],
-          ['Mi excusa más común','Lo que ya tengo en mi mano para empezar','Mis notas — Empieza con lo que tienes'],
-          ['Nombre Creador 1','Lo que aprendí del Creador 1','Nombre Creador 2','Lo que aprendí del Creador 2','Desafío día 1 completado','Notas del desafío día 1','Desafío día 2 completado','Notas del desafío día 2','Desafío día 3 completado','Notas del desafío día 3','Desafío día 4 completado','Notas del desafío día 4','Desafío día 5 completado','Notas del desafío día 5','Mi compromiso de 5 días','Firma','Fecha del compromiso']
-        ];
-        if (g === 5) ranges[g].forEach(label=>{if(byLabel.has(label) && !groups[g].includes(label)) addText(label,byLabel.get(label));});
-        // Add the account evaluation radio selections.
-        if (g === 2) ['Me acerca','Me aleja'].forEach(v=>{});
+
+    function ensureSpace(height) {
+      if (y + height > contentBottom) {
+        drawFooter();
+        drawHeader('Luz en el Feed', 'Continuación de respuestas');
+        if (currentSection) addSectionHeading(currentSection, true);
       }
     }
-    const safeName = (document.querySelector('[data-label="Nombre del participante"]')?.value || 'participante').trim().replace(/[^a-z0-9-_]/gi,'_').slice(0,40);
-    for (let p=1;p<=doc.getNumberOfPages();p++) {
-      doc.setPage(p); doc.setFontSize(8); doc.setTextColor(140,148,162);
-      doc.text('Luz en el Feed · Respuestas personales', margin, 290);
-      doc.text(`Página ${p}`, pageW-margin, 290, {align:'right'});
+
+    function addSectionHeading(title, continuation = false) {
+      const heading = continuation ? `${title} (continuación)` : title;
+      ensureSpace(15);
+      doc.setFillColor(...C.navy);
+      doc.roundedRect(margin, y, usable, 10, 2, 2, 'F');
+      doc.setFillColor(...C.gold);
+      doc.circle(margin + 5, y + 5, 2.2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text(heading, margin + 11, y + 6.5);
+      y += 15;
+      currentSection = title;
     }
+
+    function addAnswer(question, answer) {
+      if (answer === undefined || answer === null || String(answer).trim() === '') return;
+      const answerText = String(answer).trim();
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      const qLines = doc.splitTextToSize(question, usable - 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const aLines = doc.splitTextToSize(answerText, usable - 10);
+      const answerHeight = Math.max(12, aLines.length * 4.8 + 7);
+      const totalHeight = qLines.length * 4.7 + 4 + answerHeight + 7;
+
+      if (y + totalHeight > contentBottom) {
+        drawFooter();
+        drawHeader('Luz en el Feed', 'Continuación de respuestas');
+        if (currentSection) addSectionHeading(currentSection, true);
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...C.ink);
+      doc.text(qLines, margin + 1, y);
+      y += qLines.length * 4.7 + 3;
+
+      const boxY = y;
+      doc.setFillColor(...C.blue);
+      doc.roundedRect(margin, boxY, usable, answerHeight, 2, 2, 'F');
+      doc.setFillColor(...C.gold);
+      doc.roundedRect(margin, boxY, 2, answerHeight, 1, 1, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(...C.ink);
+      doc.text(aLines, margin + 6, boxY + 6);
+      y += answerHeight + 7;
+    }
+
+    function valueByLabel(label) {
+      const el = [...document.querySelectorAll('[data-label]')].find(node => node.dataset.label === label);
+      if (!el) return '';
+      if (el.type === 'checkbox') return el.checked ? 'Completado' : '';
+      return (el.value || '').trim();
+    }
+
+    function radioValue(name) {
+      const selected = document.querySelector(`input[type="radio"][name="${name}"]:checked`);
+      return selected ? selected.value : '';
+    }
+
+    function accountAnswer(index) {
+      const input = [...document.querySelectorAll('.account-row input[type="text"]')][index - 1];
+      const account = input ? input.value.trim() : '';
+      const judgement = radioValue(`account${index}`);
+      if (!account && !judgement) return '';
+      if (account && judgement) return `${account} — ${judgement}`;
+      return account || judgement;
+    }
+
+    const participantName = valueByLabel('Nombre del participante') || 'Participante';
+    drawHeader('Luz en el Feed', 'Redes Sociales e Influencia con Propósito · Respuestas personales');
+    doc.setTextColor(...C.gold);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.text('Redes Sociales e Influencia', margin, 53);
+    doc.text('con Propósito', margin, 63);
+    doc.setTextColor(...C.ink);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Participante: ${participantName}`, margin, 74);
+    doc.setDrawColor(...C.gold);
+    doc.setLineWidth(0.8);
+    doc.line(margin, 80, W - margin, 80);
+    y = 91;
+
+    const sections = [
+      {
+        title: 'Datos del participante',
+        questions: [
+          ['Nombre', () => valueByLabel('Nombre del participante')]
+        ]
+      },
+      {
+        title: '1. Diagnóstico digital',
+        questions: [
+          ['Horas al día frente a la pantalla', () => valueByLabel('Horas al día frente a la pantalla')],
+          ['Lo primero que reviso al despertar', () => valueByLabel('Lo primero que reviso al despertar')],
+          ['Lo último que reviso al acostarme', () => valueByLabel('Lo último que reviso al acostarme')],
+          ['Soy más…', () => radioValue('type')],
+          ['¿Quién está influyendo en quién: yo en las redes o las redes en mí?', () => valueByLabel('Reflexión: quién influye en quién')],
+          ['Mis notas', () => valueByLabel('Mis notas — Diagnóstico digital')]
+        ]
+      },
+      {
+        title: '2. Lo que consumo me moldea',
+        questions: [
+          ['Cuenta 1 que más veo: ¿me acerca o me aleja de Dios?', () => accountAnswer(1)],
+          ['Cuenta 2 que más veo: ¿me acerca o me aleja de Dios?', () => accountAnswer(2)],
+          ['Cuenta 3 que más veo: ¿me acerca o me aleja de Dios?', () => accountAnswer(3)],
+          ['Mis notas', () => valueByLabel('Mis notas — Lo que consumo me moldea')]
+        ]
+      },
+      {
+        title: '3. De consumidor a creador',
+        questions: [
+          ['El pilar que más necesito trabajar es', () => valueByLabel('El pilar que más necesito trabajar')],
+          ['Mis notas', () => valueByLabel('Mis notas — De consumidor a creador')]
+        ]
+      },
+      {
+        title: '4. Empieza con lo que tienes',
+        questions: [
+          ['Mi excusa más común es', () => valueByLabel('Mi excusa más común')],
+          ['Lo que ya tengo en mi mano para empezar', () => valueByLabel('Lo que ya tengo en mi mano para empezar')],
+          ['Mis notas', () => valueByLabel('Mis notas — Empieza con lo que tienes')]
+        ]
+      },
+      {
+        title: '5. Desafío de 5 días',
+        questions: [
+          ['Creador 1 — Nombre', () => valueByLabel('Nombre Creador 1')],
+          ['Creador 1 — Lo que aprendí', () => valueByLabel('Lo que aprendí del Creador 1')],
+          ['Creador 2 — Nombre', () => valueByLabel('Nombre Creador 2')],
+          ['Creador 2 — Lo que aprendí', () => valueByLabel('Lo que aprendí del Creador 2')],
+          ['Día 1 — Limpieza de feed', () => [valueByLabel('Desafío día 1 completado'), valueByLabel('Notas del desafío día 1')].filter(Boolean).join(' — ')],
+          ['Día 2 — Oración e intercesión', () => [valueByLabel('Desafío día 2 completado'), valueByLabel('Notas del desafío día 2')].filter(Boolean).join(' — ')],
+          ['Día 3 — Mi primera creación', () => [valueByLabel('Desafío día 3 completado'), valueByLabel('Notas del desafío día 3')].filter(Boolean).join(' — ')],
+          ['Día 4 — Publicación de luz', () => [valueByLabel('Desafío día 4 completado'), valueByLabel('Notas del desafío día 4')].filter(Boolean).join(' — ')],
+          ['Día 5 — Mensaje de ánimo', () => [valueByLabel('Desafío día 5 completado'), valueByLabel('Notas del desafío día 5')].filter(Boolean).join(' — ')],
+          ['Mi compromiso durante estos 5 días', () => valueByLabel('Mi compromiso de 5 días')],
+          ['Firma', () => valueByLabel('Firma')],
+          ['Fecha', () => valueByLabel('Fecha del compromiso')]
+        ]
+      }
+    ];
+
+    let anyAnswer = false;
+    for (const section of sections) {
+      const answered = section.questions
+        .map(([question, getAnswer]) => [question, getAnswer()])
+        .filter(([, answer]) => answer && String(answer).trim());
+
+      if (!answered.length) continue;
+      if (y > contentBottom - 20) {
+        drawFooter();
+        drawHeader('Luz en el Feed', 'Respuestas personales');
+      }
+      addSectionHeading(section.title);
+      answered.forEach(([question, answer]) => addAnswer(question, answer));
+      anyAnswer = true;
+    }
+
+    if (!anyAnswer) {
+      addSectionHeading('Respuestas');
+      addAnswer('Estado', 'Todavía no has respondido las preguntas del cuaderno.');
+    }
+
+    drawFooter();
+    const safeName = participantName.trim().replace(/[^a-z0-9-_]/gi, '_').slice(0, 40) || 'participante';
     doc.save(`Luz_en_el_Feed_${safeName}.pdf`);
   }
   document.getElementById('saveBottom').addEventListener('click', save);
